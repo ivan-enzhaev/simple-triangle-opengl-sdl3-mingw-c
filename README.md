@@ -1,0 +1,1 @@
+Guide: [Setting up SDL3 with OpenGL and GLAD (MinGW)](https://ivan-enzhaev.github.io/tutorials/sdl3-opengl/mingw/setting-up-sdl3-opengl-mingw)
