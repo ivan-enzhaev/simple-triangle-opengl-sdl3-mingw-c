@@ -1,24 +1,75 @@
-set(CMAKE_BUILD_TYPE "Debug")
-
 cmake_minimum_required(VERSION 3.21)
-project(simple-triangle-opengl-sdl3-mingw-c)
 
-# Set the C standard
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Debug") # "Debug" or "Release"
+endif()
+
+project(simple-triangle-opengl-sdl3-mingw-c LANGUAGES C)
+
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-set(SDL3_DIR "C:/libs/SDL3-devel-3.4.12-mingw/lib/cmake/SDL3")
-find_package(SDL3 REQUIRED)
+# =============================================================================
+# Paths (All library versions visible in one place)
+# =============================================================================
+set(LIBS_ROOT "C:/libs")
+set(SDL3_PATH "${LIBS_ROOT}/sdl3-3.4.20-mingw")
+set(GLAD_PATH "${LIBS_ROOT}/glad-0.1.36/opengl-3.3")
 
-add_executable(app)
+# =============================================================================
+# Target
+# =============================================================================
+set(APP_TARGET app)
 
-target_include_directories(app PRIVATE "C:/libs/glad-0.1.36/opengl-3.3/include")
-
-target_sources(app
-PRIVATE
-    "C:/libs/glad-0.1.36/opengl-3.3/src/glad.c"
+set(PROJECT_SOURCES
     src/main.c
 )
 
-target_link_libraries(app PRIVATE SDL3::SDL3)
-target_link_options(app PRIVATE -mconsole)
+add_executable(${APP_TARGET} ${PROJECT_SOURCES})
+
+target_include_directories(${APP_TARGET} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+# =============================================================================
+# Packages & Libraries
+# =============================================================================
+
+# --- SDL3 (Official Config -> handles winmm/imm32/version/setupapi/...) ------
+find_package(SDL3 REQUIRED CONFIG
+    PATHS "${SDL3_PATH}/lib/cmake/SDL3"
+    NO_DEFAULT_PATH
+    NO_CMAKE_FIND_ROOT_PATH
+)
+
+if(TARGET SDL3::SDL3-static)
+    set(SDL3_TARGET SDL3::SDL3-static)
+else()
+    set(SDL3_TARGET SDL3::SDL3)
+endif()
+
+# --- GLAD (OpenGL 3.3 Core loader) -------------------------------------------
+add_library(glad STATIC
+    "${GLAD_PATH}/src/glad.c"
+)
+target_include_directories(glad PUBLIC
+    "${GLAD_PATH}/include"
+)
+
+# =============================================================================
+# Link Libraries, Flags & Stripping
+# =============================================================================
+target_link_libraries(${APP_TARGET} PRIVATE
+    ${SDL3_TARGET}
+    glad
+    opengl32
+)
+
+target_link_options(${APP_TARGET} PRIVATE -static -static-libgcc)
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_link_options(${APP_TARGET} PRIVATE -mconsole)
+else()
+    target_compile_options(${APP_TARGET} PRIVATE -Os)
+    target_link_options(${APP_TARGET} PRIVATE -s -mwindows)
+endif()

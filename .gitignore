@@ -1,5 +1,6 @@
-.idea/
-.qtcreator/
+# Build Artifacts
 build/
-cmake-build-debug/
 dist/
+
+# IDE Metadata
+.qtcreator/
