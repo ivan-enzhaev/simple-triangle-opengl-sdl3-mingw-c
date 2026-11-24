@@ -1,1 +1,1 @@
-[Guide](https://ivan-enzhaev.github.io/tutorials/sdl3-webgpu/mingw/simple-triangle-opengl-sdl3-mingw-c)
+[Guide](https://ivan-enzhaev.github.io/tutorials/sdl3-opengl/mingw/simple-triangle-opengl-sdl3-mingw-c)
